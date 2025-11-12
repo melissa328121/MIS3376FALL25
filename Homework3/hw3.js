@@ -2,7 +2,7 @@
 program name: hw3.js
 author: melissa alfaro
 date created: 9/14/25
-date last edited: 11/10/25
+date last edited: 11/12/25
 version: 3.9
 description: homework 3 patient registration javascript form
 */
@@ -50,9 +50,6 @@ if (slider && output) {
   };
 }
 
-
-
-
 // make sure they exist before using
 if (slider && output) {
   // initial formatted value
@@ -63,9 +60,6 @@ if (slider && output) {
     output.innerHTML = `Health Rating: ${this.value} / 10`;
   };
 }
-
-
-
 
 // set the initial value of the output to match the slider's value
 output.innerHTML = slider.value;
@@ -131,16 +125,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // address line 1 validation
 function validateAddress1() {
-  const ad1 = document.getElementById("address1").value
-
-  if (ad1.length < 2) {
-    document.getElementById("address1-error").innerHTML = "please enter something on address line"
-    return false
-  } else {
-    document.getElementById("address1-error").innerHTML = ""
-    return true
+  const ad1 = document.getElementById("address1").value.trim();
+// check if blank
+  if (ad1 === "") {
+    document.getElementById("address1-error").innerHTML = "address line cannot be left blank";
+    return false;
   }
+ // check length minimum
+  if (ad1.length < 2) {
+    document.getElementById("address1-error").innerHTML = "address line must be at least 2 characters long";
+    return false;
+    //checks max
+  }
+  if (ad1.length > 30) {
+    document.getElementById("address1-error").innerHTML = "address line cannot exceed 30 characters";
+    return false;
+  }
+ // if all checks pass
+  document.getElementById("address1-error").innerHTML = "";
+  return true;
 }
+
+
 
 // city validate js code
 // below checks that city is not blank and length is between 2 and 30 characters
@@ -174,28 +180,45 @@ function validateCity()
 
 // zip code validation
 function validateZipcode() {
-  const zipCodeInput = document.getElementById("zipcode")
-  let zip = zipCodeInput.value.replace(/[^\d-]/g, "") // removes characters that are not digits or dash
+  const zipCodeInput = document.getElementById("zipcode");
+  let zip = zipCodeInput.value.trim();
 
-  if (!zip) {
-    document.getElementById("zipcode-error").innerHTML = "zip code cannot be left blank"
-    return false
+  if (zip === "") {
+    document.getElementById("zipcode-error").innerHTML = "zip code cannot be left blank";
+    return false;
   }
 
   if (!/^\d{5}(-\d{4})?$/.test(zip)) {
-    document.getElementById("zipcode-error").innerHTML = "enter a valid 5 digit or zip plus 4 format"
-    return false
+    document.getElementById("zipcode-error").innerHTML = "enter a valid 5-digit or ZIP+4 format";
+    return false;
   }
 
-  zipCodeInput.value = zip
-  document.getElementById("zipcode-error").innerHTML = ""
-  return true
+  document.getElementById("zipcode-error").innerHTML = "";
+  return true;
+}
+
+
+// state validation
+function validateState() {
+  const state = document.getElementById("state").value;
+  const errorElement = document.getElementById("state-error"); // FIXED: use state-error span
+
+  if (state === "" || state === null) {
+    errorElement.innerHTML = "please select a state";
+    return false;
+  } else {
+    errorElement.innerHTML = "";
+    return true;
+  }
 }
 
 // email validation
 function validateEmail() {
-  const email = document.getElementById("email").value.trim()
-  const emailReject = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,20}$/
+  let email = document.getElementById("email").value.trim();
+  // force lowercase before validating
+  email = email.toLowerCase();
+  document.getElementById("email").value = email;
+  const emailReject = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,20}$/;
 
   if (email === "") {
     document.getElementById("email-error").innerHTML = "email cannot be empty"
@@ -206,101 +229,129 @@ function validateEmail() {
   } else {
     document.getElementById("email-error").innerHTML = ""
     return true
+    
   }
 }
 
 // phone number validation
 function validatePhonenum() {
-  const phoneInput = document.getElementById("phonenum")
-  let phone = phoneInput.value.replace(/\D/g, "") // removes everything except numbers
-  
-  if (phone.length === 0) {
-    document.getElementById("phonenum-error").innerHTML = "phone number cannot be left blank"
-    return false
+  const phoneInput = document.getElementById("phonenum");
+  let rawValue = phoneInput.value.trim();
+  // check if blank
+  if (rawValue === "") {
+    document.getElementById("phonenum-error").innerHTML = "phone number cannot be left blank";
+    return false;
   }
-
-  if (phone.length !== 10) {
-    document.getElementById("phonenum-error").innerHTML = "phone number must be 10 digits"
-    return false
+  // check for letters or invalid characters before stripping
+  if (/[^0-9-]/.test(rawValue)) {
+    document.getElementById("phonenum-error").innerHTML = "phone number can only contain numbers and dashes";
+    return false;
   }
-
-  const formattedPhoneNum = phone.slice(0,3) + "-" + phone.slice(3,6) + "-" + phone.slice(6,10)
-  phoneInput.value = formattedPhoneNum
-  document.getElementById("phonenum-error").innerHTML = ""
-  return true
+  // remove all non digits for counting
+  let phone = rawValue.replace(/\D/g, "");
+  // check if too short
+  if (phone.length < 10) {
+    document.getElementById("phonenum-error").innerHTML = "phone number must be 10 digits";
+    return false;
+  }
+  // check if too long
+  if (phone.length > 10) {
+    document.getElementById("phonenum-error").innerHTML = "phone number cannot exceed 10 digits";
+    return false;
+  }
+  // if valid then format automatically
+  const formattedPhone = phone.slice(0,3) + "-" + phone.slice(3,6) + "-" + phone.slice(6,10);
+  phoneInput.value = formattedPhone;
+  // clear any old errors
+  document.getElementById("phonenum-error").innerHTML = "";
+  return true;
 }
+
 
 // username validation
 function validateUname() {
-  let uname = document.getElementById("username").value
-  uname = uname.toLowerCase()
-  document.getElementById("username").value = uname
+  let uname = document.getElementById("username").value.trim();
+  uname = uname.toLowerCase();
+  document.getElementById("username").value = uname;
 
-  if (uname.length === 0) {
-    document.getElementById("username-error").innerHTML = "username field cannot be empty"
-    return false
+  // check username field if empty
+  if (uname === "") {
+    document.getElementById("username-error").innerHTML = "please enter a username";
+    return false;
   }
-
+  // check first character
   if (!isNaN(uname.charAt(0))) {
-    document.getElementById("username-error").innerHTML = "username cannot begin with a number"
-    return false
+    document.getElementById("username-error").innerHTML = "username cannot begin with a number";
+    return false;
   }
-
-  const regex = /^[a-zA-Z0-9_-]+$/
+  // check allowed characters
+  const regex = /^[a-zA-Z0-9_-]+$/; // only letters, numbers, dashes, underscores allowed
   if (!regex.test(uname)) {
-    document.getElementById("username-error").innerHTML = "username can only contain letters numbers underscores or dashes"
-    return false
+    document.getElementById("username-error").innerHTML = "username can only contain letters, numbers, dashes, or underscores";
+    return false;
   }
-
+  // check length minimum
   if (uname.length < 5) {
-    document.getElementById("username-error").innerHTML = "username must be at least 5 characters"
-    return false
+    document.getElementById("username-error").innerHTML = "username must be at least 5 characters long";
+    return false;
+    //checks max
   }
-
-  if (uname.length > 30) {
-    document.getElementById("username-error").innerHTML = "username cannot exceed 30 characters"
-    return false
+  if (uname.length > 20) {
+    document.getElementById("username-error").innerHTML = "username cannot exceed 20 characters";
+    return false;
   }
-
-  document.getElementById("username-error").innerHTML = ""
-  return true
+  // if all checks pass
+  document.getElementById("username-error").innerHTML = "";
+  return true;
 }
+
 
 // password validation
 function validatePassword() {
-  const pword = document.getElementById("password").value
-  const uname = document.getElementById("username").value
-  const errorMessage = []
+  const pword = document.getElementById("password").value.trim();
+  const uname = document.getElementById("username").value.trim();
+  const errorMessage = [];
+  // check minimum length
+  if (pword.length < 8) errorMessage.push("password must be at least 8 characters long");
+  // check uppercase
+  if (!/[A-Z]/.test(pword)) errorMessage.push("must include at least one uppercase letter");
+  // check lowercase
+  if (!/[a-z]/.test(pword)) errorMessage.push("must include at least one lowercase letter");
+  // check digit
+  if (!/[0-9]/.test(pword)) errorMessage.push("must include at least one number");
+  // check if password contains or equals username
+  if (pword.toLowerCase() === uname.toLowerCase() || pword.toLowerCase().includes(uname.toLowerCase())) {
+    errorMessage.push("password cannot contain or equal your username");
+  }
+  // display password messages
+  const errorContainer = document.getElementById("password-message-box");
+  errorContainer.innerHTML = errorMessage.map(msg => `<span>${msg}</span><br/>`).join("");
 
-  if (!/[a-z]/.test(pword)) errorMessage.push("enter at least one lowercase letter")
-  if (!/[A-Z]/.test(pword)) errorMessage.push("enter at least one uppercase letter")
-  if (!/[0-9]/.test(pword)) errorMessage.push("enter at least one number")
-  if (!/[!$@#%^&*()_\-+=\\/><.,`~]/.test(pword)) errorMessage.push("enter at least one special character")
-  if (pword.toLowerCase().includes(uname)) errorMessage.push("password cannot contain your username")
-
-  const errorContainer = document.getElementById("password-message-box")
-  errorContainer.innerHTML = errorMessage.map(msg => `<span>${msg}</span><br/>`).join("")
-  
-
-  return errorMessage.length === 0
+  return errorMessage.length === 0;
 }
+
 
 // confirm password validation
 function confirmPassword() {
-  const pword1 = document.getElementById("password").value
-  const pword2 = document.getElementById("con_password").value
-
-  if (pword1 !== pword2) {
-    document.getElementById("con-password-error").innerHTML = "passwords do not match"
-    return false
-  } else {
-    document.getElementById("con-password-error").innerHTML = ""
-    return true
+  const pword1 = document.getElementById("password").value.trim();
+  const pword2 = document.getElementById("con_password").value.trim();
+  // check if either field is blank
+  if (pword1 === "" || pword2 === "") {
+    document.getElementById("con-password-error").innerHTML = "both password fields are required";
+    return false;
   }
+  // check that passwords match
+  if (pword1 !== pword2) {
+    document.getElementById("con-password-error").innerHTML = "passwords do not match";
+    return false;
+  }
+  // if all checks pass
+  document.getElementById("con-password-error").innerHTML = "";
+  return true;
 }
 
 // review button shows all user input back to them
-// review button shows all user input back to them
+
 function reviewInput() {
   const formcontent = document.getElementById("signup")
 
@@ -378,24 +429,30 @@ function validateFname() {
   const namePattern = /^[A-Za-z'-]+$/; // letters, apostrophes, dashes only
   // check first name field if empty
   if (fname === "") {
-    document.getElementById("fname-error").innerHTML = "First name field cannot be empty.";
-    return false;} 
+    document.getElementById("fname-error").innerHTML = "please enter your first name (1 to 30 characters)";
+    return false;
+  } 
   // check pattern
   if (!fname.match(namePattern)) {
-    document.getElementById("fname-error").innerHTML = "Letters, apostrophes, and dashes only.";
-    return false;}
+    document.getElementById("fname-error").innerHTML = "first name can only include letters, apostrophes, and dashes";
+    return false;
+  }
   // check length minimum
-  if (fname.length < 2) {
-    document.getElementById("fname-error").innerHTML = "First name cannot be less than 2 characters.";
-    return false;}
-  // check length maximum
+  if (fname.length < 1) {
+    document.getElementById("fname-error").innerHTML = "first name must be at least 1 character long";
+    return false;
+    //checks max
+  }
   if (fname.length > 30) {
-    document.getElementById("fname-error").innerHTML = "First name cannot be more than 30 characters.";
-    return false; }
+    document.getElementById("fname-error").innerHTML = "first name cannot exceed 30 characters";
+    return false;
+  }
   // if all checks pass
   document.getElementById("fname-error").innerHTML = "";
   return true;
 }
+
+
 
   /* Check if middle initial is valid */
 function validateMname() 
@@ -429,26 +486,73 @@ function validateMname()
 function validateLname() {
   const lname = document.getElementById("lname").value.trim();
   const namePattern = /^[A-Za-z'-]+$/; // letters, apostrophes, dashes only
-  // check last field is empty
+// check last name field if empty
   if (lname === "") {
-    document.getElementById("lname-error").innerHTML = "Last name field cannot be empty.";
-    return false;}
-  // check pattern
+    document.getElementById("lname-error").innerHTML = "please enter your last name (1 to 30 characters)";
+    return false;
+  } 
+// check pattern
   if (!lname.match(namePattern)) {
-    document.getElementById("lname-error").innerHTML = "Letters, apostrophes, and dashes only.";
-    return false;}
-  // check length minimum
-  if (lname.length < 2) {
-    document.getElementById("lname-error").innerHTML = "Last name cannot be less than 2 characters.";
-    return false;}
-  // check length maximum
+    document.getElementById("lname-error").innerHTML = "last name can only include letters, apostrophes, and dashes";
+    return false;
+  }
+// check length minimum
+  if (lname.length < 1) {
+    document.getElementById("lname-error").innerHTML = "last name must be at least 1 character long";
+    return false;
+    //checks max
+  }
   if (lname.length > 30) {
-    document.getElementById("lname-error").innerHTML = "Last name cannot be more than 30 characters.";
-    return false; }
-  // if all checks pass
+    document.getElementById("lname-error").innerHTML = "last name cannot exceed 30 characters";
+    return false;
+  }
+ // if all checks pass
   document.getElementById("lname-error").innerHTML = "";
   return true;
 }
+
+
+
+//radio button validation
+
+//checking the gender radio button
+function validateGender() {
+  const radios = document.getElementsByName("psex"); // get all gender radios
+  const checked = Array.from(radios).some(r => r.checked); // check if one is selected
+  const errorSpan = document.getElementById("psex-error");
+if (checked) {
+    errorSpan.innerHTML = "";
+    return true;
+  } else {
+    errorSpan.innerHTML = "please select a gender option";
+    return false;
+  }
+}
+
+// checking insurance radio buttons are selected
+function validateInsurance() {
+  const radios = document.getElementsByName("insurance"); // grab both radios
+  const checked = Array.from(radios).some(r => r.checked); // see if one is picked
+  document.getElementById("insurance-error").innerHTML = checked ? "" : "please select insurance option";
+  return checked;
+}
+
+// checking vaccinated radio buttons are selected
+function validateVaccinated() {
+  const radios = document.getElementsByName("vaccinated"); // grab both radios
+  const checked = Array.from(radios).some(r => r.checked); // see if one is picked
+  document.getElementById("vaccinated-error").innerHTML = checked ? "" : "please select vaccination status";
+  return checked;
+}
+
+// checking at least one checkbox is selected
+function validateCondition() {
+  const boxes = document.getElementsByName("condition"); // get all 5 checkboxes
+  const checked = Array.from(boxes).some(b => b.checked); // true if any checked
+  document.getElementById("condition-error").innerHTML = checked ? "" : "please select at least one condition";
+  return checked;
+}
+
 
 // this part is to show the alert box when needed
 function showAlert() {
@@ -462,8 +566,27 @@ function showAlert() {
   };
 }
 
+// text area validation 
+function validateNotes() {
+  const notes = document.getElementById("notes").value.trim();
+  const pattern = /^[A-Za-z0-9.,'"()\-\s!?]*$/; // letters, numbers, punctuation allowed since it is a text box 
+  // if blank skip check
+  if (notes === "") {
+    document.getElementById("notes-error").innerHTML = "";
+    return true;
+  }
+  // check for the weird characters
+  if (!pattern.test(notes)) {
+    document.getElementById("notes-error").innerHTML = "please use only letters, numbers, and punctuation";
+    return false;
+  }
+  // if valid clear any old error
+  document.getElementById("notes-error").innerHTML = "";
+  return true;
+}
+
 // validate everything on the patient form
-function validateEverything() {
+function validateEverything(showAlertBox = false) { // only show the alert box if one the functions checks is false
   let valid = true;
 
   // run each validation function from the functions above
@@ -480,19 +603,26 @@ function validateEverything() {
   if (!validateUname()) { valid = false; }
   if (!validatePassword()) { valid = false; }
   if (!confirmPassword()) { valid = false; }
+  if (!validateInsurance()) { valid = false; }
+  if (!validateVaccinated()) { valid = false; }
+  if (!validateCondition()) { valid = false; }
+  if (!validateState()) { valid = false; }
+  if (!validateGender()) { valid = false; }
+  if (!validateNotes()) { valid = false; }
 
   // handle final validation result
   const submitBtn = document.getElementById("submit");
 
   if (!valid) {
-    showAlert(); // show alert if anything failed
-    submitBtn.disabled = true; // keep submit disabled if invalid
+    if (showAlertBox) showAlert(); // only show alert when user clicked Validate
+    submitBtn.disabled = true;     // keep submit disabled if invalid
   } else {
-    submitBtn.disabled = false; // enable submit only if all fields valid
+    submitBtn.disabled = false;    // enable submit only if all fields valid
   }
 
   return valid; // important so form knows whether to proceed
 }
+document.getElementById("signup").onsubmit = () => validateEverything(false);
 
 
 
