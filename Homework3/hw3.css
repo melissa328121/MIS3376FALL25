@@ -2,7 +2,7 @@
 Program name: hw3.css
 Author: Melissa Alfaro
 Date created: 9/14/25
-Date last edited: 11/10/25
+Date last edited: 11/12/25
 Version: 3.7
 Description: Homework 3 Patient Registration CSS Form 
 */
@@ -177,6 +177,8 @@ p {
     font-weight: normal;
     display: block;
     margin-top: 3px;
+
+    
 }
 
 /*Password validation messages*/
