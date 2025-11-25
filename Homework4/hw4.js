@@ -1,8 +1,8 @@
  /*
 program name: hw4.js
-author: melissa alfaro
+author: Melissa Alfaro
 date created: 9/14/25
-date last edited: 11/22/25
+date last edited: 11/25/25
 version: 4.5
 description: homework 4 patient registration javascript form
 */
